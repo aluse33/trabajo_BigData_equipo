@@ -1,0 +1,27 @@
+---
+title: "Lenguajes de programación: evolución y programación en Economía" #- Hay que cambiarlo
+image: "imagenes/python_vs_r.png"      #- poned una foto vuestra
+about:
+  template: trestles        #- {jolla, solana, ...}
+  image-width: 23em         #- https://cybmeta.com/em-y-rem
+  image-shape: rectangle    #- {rectangle, round, rounded}
+  links:
+    - icon: envelope
+      text: e-mail
+      url: "mailto:<aluse@alumni.uv.es>"            #- pon tu e-mail
+    - icon: github
+      text: Github
+      href: https://github.com/aluse33     #- Github
+---
+        
+Hola, somos Alejandro Lucas, Adrián Guijarro y Luis Díaz.
+      
+Esta web sirve para presentar el trabajo en equipo para la asignatura "Programación y manejo de datos en la era Del Big Data", optativa de GECO en la Facultad de Economía de la Universitat de València.
+
+La web de la asignatura está [aquí](https://perezp44.github.io/intro-ds-23-24-web/){target="_blank"} y los trabajos de mis compañeros de curso puedes verlos [aquí](https://perezp44.github.io/intro-ds-23-24-web/05-trabajos-estudiantes.html){target="_blank"}.
+
+
+Nuestro trabajo lleva por título : **"Lenguajes de programación: evolución y programación en Economía"**. El objetivo es mostrar la evolución del uso y de la popularidad de distintos lenguajes de programación, así como hablar de programación en Economía, mostrando un par de ejemplos de por qué saber programar es fundamental a la hora de realizar análisis económico de calidad.
+
+
+El trabajo puede verse [aquí](my_trabajo_BigData.html), y las slides [aquí](my_slides_BigData.html){target="_blank"}.

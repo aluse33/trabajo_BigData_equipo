@@ -1,0 +1,515 @@
+---
+title: "Lenguajes de programación: evolución y programación en Economía" 
+title-slide-attributes:
+    data-background-image: "./imagenes/tidyverse.png"
+    data-background-size: contain
+    data-background-opacity: ""
+author: "Alejandro Lucas, Luis Díaz, Adrián Guijarro"
+date: 2023-12-19              #- ISO8601 YYYY-MM-DD format 
+date-format: short
+preload-iframes: true
+revealjs-plugins:
+  - confetti
+format: 
+  revealjs:
+    scrollable: true
+    slide-level: 2
+    height: 900
+    width: 1600
+    toc: false
+    center-title-slide: true
+    title-slide-attributes: #- atributos para la slide de titulo
+      data-background-color: "#4831D4"   #- color de R-ladies
+    preview-links: auto  #- true: abre un iframe en lugar de abrir ventana
+    link-external-newwindow: true
+    transition: fade
+    fontcolor: "#CCF381"
+    highlight-style: a11y
+    code-line-numbers: true
+    number-sections: false
+    slide-number: c/t  
+    incremental: true 
+    fig-width: 16
+    theme: night
+    css: my_styles_slides
+footer: |
+  Slides hechas con [Quarto](https://quarto.org/) 
+
+#theme: night
+---
+
+# {background-iframe="logo-fall/index.html"}
+
+## 0. Intro {background-color="#CCF381" .smaller} 
+    
+En este trabajo hemos realizado un seguimiento de los  aspectos determinantes en la adopción de disitintos lenguajes de programación(popularidad, salarios, lenguajes más utilizados por jóvenes,etc.), así como un estudio sobre la aplicación de la programación para la Economía.
+<br><br>
+Esto último es fundamental para poner en práctica los conocimientos adquiridos a lo largo del grado y contrastar las teorías y modelos estudiados con la evidencia empírica.
+
+![](./imagenes/imagen_intro.webp){ fig-align="right" width="40%"}
+![](./imagenes/r_vs_python.png){ fig-align="left" width="40%"}
+
+
+---
+
+##  1. Análisis del índice TIOBE  {background-color="#CCF381" .smaller}
+::: {.panel-tabset}
+### Lenguajes más populares 
+
+```{r}
+#| code-fold: true
+#| warning: false
+
+library(tiobeindexr)
+library(tidyverse)
+library(gt)
+library(RColorBrewer)
+library(ggthemes)
+library(highcharter)
+library(gtExtras)
+
+df <- top_20()
+df <-  df %>% select(1,4,5)
+df <- df %>%
+  mutate(porcentaje_numeric = ifelse(str_detect(Ratings, "%"),
+                                     as.numeric(str_remove(Ratings, "%")),
+                                     as.numeric(Ratings))) %>%
+  rename(cuota = porcentaje_numeric) %>%
+  select(1,2,4)
+ 
+
+colores <- c("#3498db", "#2ecc71", "#e74c3c", "#f39c12", "#9b59b6", "#e67e22", "#1abc9c", "#95a5a6")
+
+df_logos <- data.frame(lenguaje = c("Python", "C", "C++", "Java", "C#", "JavaScript", "PHP", "Visual Basic", "SQL", "Assembly language", "Scratch", "Fortran", "Go", "MATLAB", "Kotlin", "Delphi/Object Pascal", "Swift","Ruby","R","Rust"),
+                       logo = c("https://tse4.mm.bing.net/th?id=OIP.EDJ9xoErBbZqK2tExVoJfAAAAA&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.bkbn2-K7c9rMBV5dvYXDrQHaIh&pid=Api&rs=1&c=1&qlt=95&w=103&h=118","https://tse1.mm.bing.net/th?id=OIP.ggb-3B-8LRfbgS0lPLYNxwHaIU&pid=Api&rs=1&c=1&qlt=95&w=105&h=118","https://tse1.mm.bing.net/th?id=OIP.dJ7A1hPb-BDRBrhOmhrVAgHaHa&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.2x1yN8k3MVCrkJFR_C5k-wHaIp&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.YPYdVAg5ieRspLI6HIpmDQHaIB&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.pkqphAig1t-PCsy4dkVrfAHaD5&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.Y224uoZnCs8yY0Sos_h4cQHaDd&pid=Api&rs=1&c=1&qlt=95&w=258&h=120","https://tse4.mm.bing.net/th?id=OIP.S_9pgiKacbi3FxPKxDmusgHaFy&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.v5m2HW3FI3RbopnK8Cs6HgAAAA&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.bHt6sdtkwUqP91oPKlruGgHaEM&pid=Api&P=0&h=180","https://tse2.explicit.bing.net/th?id=OIP.tLfIejOZiP_H0Zse0NIn2QAAAA&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.7nKR4oRAhgtSbD97mDXWWgHaE8&pid=Api&P=0&h=180","https://tse2.mm.bing.net/th?id=OIP.cI8KflTKlnmraGFa22XpKQHaEK&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.gW_YaXsZmuSntd_sy5zkIwHaHa&pid=Api&P=0&h=180","https://tse2.mm.bing.net/th?id=OIP.hEP7hOlvIzhKU1fGpizd7QAAAA&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.XozeB5BRQSzNCO6k7om62QHaHa&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.2BwE10YiTSXRrnW2LnVh8wHaHa&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.0rg-o4mEzLO5EHJ1zS52YwHaGe&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.YmPfYoQK3WvGEjFXusKV9QHaHa&pid=Api&P=0&h=180"))
+
+df_final <- left_join(df, df_logos, by = c(`Programming Language` = "lenguaje"))
+df_final <- df_final %>% mutate(Logo = logo, .after = `Programming Language`)
+df_final <- df_final %>% select(-5)
+
+minimal_table_prueba <- gt(df_final) %>% 
+  gtExtras::gt_plt_dot(column = cuota, category_column = `Programming Language`,  max_value = NULL, palette = colores ) %>% 
+  gtExtras::gt_theme_nytimes() %>% 
+  tab_header(title = "Lenguajes de programación más populares",
+             subtitle = "Según el índice TIOBE.") %>% 
+  cols_width(`Programming Language` ~ px(368), 3 ~ px(30)) %>%
+  gtExtras::gt_img_rows(columns = Logo, img_source = 'web')
+
+minimal_table_prueba
+```
+
+### Evolución top 10 lenguajes
+
+```{r}
+#| code-fold: true
+#| warning: false
+
+df_2 <- long_term_history()
+df_2 <- df_2 %>% pivot_longer(cols = 2:9, names_to = "año", values_to = "posicion")
+df_2 <- df_2 %>% mutate(posicion =  as.numeric(posicion),
+                        año = as.numeric(año))
+
+df_python <- df_2 %>% filter(`Programming Language` == "Python")
+df_c <- df_2 %>% filter(`Programming Language` == "C")
+df_cplus <- df_2 %>% filter(`Programming Language` == "C++")
+df_cplus <- df_2 %>% filter(`Programming Language` == "C++")
+df_java <- df_2 %>% filter(`Programming Language` == "Java")
+df_javasc <- df_2 %>% filter(`Programming Language` == "JavaScript")
+df_csharp <- df_2 %>% filter(`Programming Language` == "C#")
+df_csharp <- df_2 %>% filter(`Programming Language` == "C#")
+df_php <- df_2 %>% filter(`Programming Language` == "PHP")
+df_vb <- df_2 %>% filter(`Programming Language` == "Visual Basic")
+df_sql <- df_2 %>% filter(`Programming Language` == "SQL")
+df_asm <- df_2 %>% filter(`Programming Language` == "Assembly language")
+
+
+df_evolucion <- highchart() %>%
+  hc_chart(type = "line", backgroundColor = "white") %>%
+  hc_add_series(df_python, "line", hcaes(año, posicion), name = "Python") %>%
+  hc_add_series(df_c, "line", hcaes(año, posicion), name = "C") %>%
+  hc_add_series(df_cplus, "line", hcaes(año, posicion), name = "C++") %>%
+  hc_add_series(df_java, "line", hcaes(año, posicion), name = "Java") %>%
+  hc_add_series(df_javasc, "line", hcaes(año, posicion), name = "JavaScript") %>%
+  hc_add_series(df_csharp, "line", hcaes(año, posicion), name = "C#") %>%
+  hc_add_series(df_php, "line", hcaes(año, posicion), name = "PHP") %>%
+  hc_add_series(df_vb, "line", hcaes(año, posicion), name = "Visual Basic") %>%
+  hc_add_series(df_sql, "line", hcaes(año, posicion), name = "SQL") %>%
+  hc_add_series(df_asm, "line", hcaes(año, posicion), name = "Assembly Language") %>%
+  hc_title(text = "Evolución del Top 10 lenguajes de programación",
+           style = list(fontWeight = "bold",
+                        color = "#333")) %>%
+  hc_xAxis(title = list(text = NULL)) %>%
+  hc_yAxis(title = list(text = "Posición índice TIOBE")) %>%
+  hc_yAxis(reversed = TRUE) %>%
+  hc_tooltip(pointFormat = "({point.x}, {point.y})") 
+
+df_evolucion
+```
+:::
+
+---
+
+##  1. Análisis del índice TIOBE {background-color="#CCF381" .smaller}
+
+::: {.panel-tabset}
+## Mejor lenguaje de cada año
+
+```{r}
+#| code-fold: true
+#| warning: false
+
+
+df_3 <-hall_of_fame()
+
+df_logo <- data.frame(lenguaje = c(2022:2003),
+                      logo = c("https://th.bing.com/th?id=OIP.H3I3buZeC8Bkez8ADSrqMwHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.uZuulMpBtfWNUBXf8fHu1AHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.uZuulMpBtfWNUBXf8fHu1AHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.bkbn2-K7c9rMBV5dvYXDrQHaIh&w=233&h=268&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.uZuulMpBtfWNUBXf8fHu1AHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.bkbn2-K7c9rMBV5dvYXDrQHaIh&w=233&h=268&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.7nKR4oRAhgtSbD97mDXWWgHaE8&w=306&h=204&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP._Lm_T3scKhVEVFC54gcRxwHaE8&w=306&h=204&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.Y4VPmWW2m4_V2WFYOEGYRgHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://www.bing.com/th?id=OIP.LN_XZYfNR1okCsPl0pzIqQAAAA&w=114&h=100&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.rI4h3ndENsvdOwunJgW4aQAAAA&w=212&h=212&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.rI4h3ndENsvdOwunJgW4aQAAAA&w=212&h=212&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.uZuulMpBtfWNUBXf8fHu1AHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.7nKR4oRAhgtSbD97mDXWWgHaE8&w=306&h=204&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.bkbn2-K7c9rMBV5dvYXDrQHaIh&w=233&h=268&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.uZuulMpBtfWNUBXf8fHu1AHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.MWdAq1cI3bRY5--dtqIwJwHaHY&w=250&h=249&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP._Lm_T3scKhVEVFC54gcRxwHaE8&w=306&h=204&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.uhYWKsUDBf1rPMjzWZx3OgHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2","https://th.bing.com/th?id=OIP.H3I3buZeC8Bkez8ADSrqMwHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.3&pid=3.1&rm=2"))
+
+df_gt <- left_join(df_logo,df_3, by = c("lenguaje" = "Year")) %>%
+  rename(Year = lenguaje)
+df_gt <- df_gt %>% rename(Año = Year,
+                          Ganador = Winner)
+
+
+
+tabla_hallfame <- gt(df_gt) %>%
+  gtExtras::gt_color_rows( Año,palette = "viridis", pal_type = "continuous") %>%
+  gtExtras::gt_img_rows(columns = logo, img_source = 'web') %>%
+  tab_header(title = "Mejor lenguaje de programación de cada año",
+             subtitle = "Según el índice TIOBE") %>%
+  gtExtras::gt_theme_538()
+
+tabla_hallfame
+```
+
+
+## Nº premios a mejor lenguaje
+
+```{r}
+#| code-fold: true
+#| warning: false
+
+df_3 <-hall_of_fame()
+
+df_3 <- df_3 %>% rename( Ganador = `Winner`) %>%
+  group_by(Ganador) %>%
+  count(n()) %>%
+  select(1,3) %>%
+  rename(numero_premios = n )
+
+
+p_winners <- ggplot()+ 
+  geom_bar(data = df_3, aes(x = fct_reorder(Ganador, numero_premios), y = numero_premios ,fill = Ganador), stat = "identity") + 
+  theme_clean() + 
+  labs(title = "Número de premios a Mejor Lenguaje del año",
+       caption = "Fuente: Elaboración propia a partir del índice TIOBE",
+       y = NULL,
+       x = NULL) + 
+  theme(legend.position = "none",
+        axis.text.y = element_text(size = 12, face = "bold")) +
+  scale_fill_brewer(palette = "Paired") + coord_flip()
+
+p_winners
+```
+:::
+
+
+---
+
+## 2. Encuesta Stack Overflow {background-color="#CCF381" .smaller}
+
+::: {.panel-tabset}
+## ¿Con qué lenguajes suelen comenzar los jóvenes?
+
+```{r}
+#| code-fold: true
+#| warning: false
+
+library(tidyverse)
+library(rio)
+library(tidyr)
+library(here)
+
+my_ruta <- here::here("datos", "survey_results_public.csv")
+df <- rio::import(my_ruta)
+df <- df %>%  #Nos quedamos solo con dos variables y hacemos una observación por cada fila.
+  select(Age , LanguageHaveWorkedWith) %>% 
+  separate_rows(LanguageHaveWorkedWith, sep = ";\\s*")
+
+df1 <- df %>% filter(Age == "18-24 years old") %>% 
+  filter(!is.na(LanguageHaveWorkedWith)) %>% 
+  group_by(LanguageHaveWorkedWith) %>%
+  summarise(Observaciones = n()) %>% 
+  top_n(10, Observaciones) %>% 
+  arrange
+
+
+colores <- c("#3498db", "#2ecc71", "#e74c3c", "#f39c12", "#9b59b6", "#e67e22", "#1abc9c","#33FF99","#95a5a6", "#FFCCFF")
+
+diez_mas_usados <- ggplot(df1, aes(x = reorder(LanguageHaveWorkedWith, Observaciones), y = Observaciones)) +
+  geom_bar(stat = "identity", fill = colores) +
+  labs(title = "Top 10 Lenguajes de Programación para Personas de 18-24 años",
+       x = "Lenguajes de Programación",
+       y = "Número de Observaciones") +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text.x = element_text(size = 8, angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8),
+        plot.title = element_text(size = 12, face = "bold"),
+        plot.subtitle = element_text(size = 10)) +
+  labs(title = "Lenguajes de programación con los que se inician los jóvenes",
+       subtitle = "medido en número de respuestas a la encuesta",
+       caption = "Fuente: encuesta anual de Stack Overflow") +
+  guides(fill = FALSE) + # Eliminar la leyenda de la estética fill
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+diez_mas_usados
+```
+
+
+## Lenguaje más popular por grupo de edad
+
+```{r}
+#| code-fold: true
+
+#Cargamos librerías
+library(gt)
+library(gtExtras)
+library(RColorBrewer)
+
+df2 <- df %>%
+  filter(!is.na(LanguageHaveWorkedWith)) %>%
+  group_by(Age, LanguageHaveWorkedWith) %>%
+  summarise(Observaciones = n()) %>%
+  group_by(Age) %>%
+  top_n(1, Observaciones) %>%
+  arrange(Age, desc(Observaciones)) %>% 
+  select(-Observaciones) %>% 
+  rename(lenguaje = LanguageHaveWorkedWith)
+
+df_logos <- data.frame(lenguaje = c("Python", "C", "C++", "Java", "C#", "JavaScript", "PHP", "Visual Basic", "SQL", "Assembly language", "Scratch", "Fortran", "Go", "MATLAB", "Kotlin", "Delphi/Object Pascal", "Swift","Ruby","R","Rust", "Golang"),
+                       logo = c("https://tse4.mm.bing.net/th?id=OIP.EDJ9xoErBbZqK2tExVoJfAAAAA&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.bkbn2-K7c9rMBV5dvYXDrQHaIh&pid=Api&rs=1&c=1&qlt=95&w=103&h=118","https://tse1.mm.bing.net/th?id=OIP.ggb-3B-8LRfbgS0lPLYNxwHaIU&pid=Api&rs=1&c=1&qlt=95&w=105&h=118","https://tse1.mm.bing.net/th?id=OIP.dJ7A1hPb-BDRBrhOmhrVAgHaHa&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.2x1yN8k3MVCrkJFR_C5k-wHaIp&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.YPYdVAg5ieRspLI6HIpmDQHaIB&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.pkqphAig1t-PCsy4dkVrfAHaD5&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.Y224uoZnCs8yY0Sos_h4cQHaDd&pid=Api&rs=1&c=1&qlt=95&w=258&h=120","https://tse4.mm.bing.net/th?id=OIP.S_9pgiKacbi3FxPKxDmusgHaFy&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.v5m2HW3FI3RbopnK8Cs6HgAAAA&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.bHt6sdtkwUqP91oPKlruGgHaEM&pid=Api&P=0&h=180","https://tse2.explicit.bing.net/th?id=OIP.tLfIejOZiP_H0Zse0NIn2QAAAA&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.7nKR4oRAhgtSbD97mDXWWgHaE8&pid=Api&P=0&h=180","https://tse2.mm.bing.net/th?id=OIP.cI8KflTKlnmraGFa22XpKQHaEK&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.gW_YaXsZmuSntd_sy5zkIwHaHa&pid=Api&P=0&h=180","https://tse2.mm.bing.net/th?id=OIP.hEP7hOlvIzhKU1fGpizd7QAAAA&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.XozeB5BRQSzNCO6k7om62QHaHa&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.2BwE10YiTSXRrnW2LnVh8wHaHa&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.0rg-o4mEzLO5EHJ1zS52YwHaGe&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.YmPfYoQK3WvGEjFXusKV9QHaHa&pid=Api&P=0&h=180", "https://seeklogo.com/images/G/go-logo-046185B647-seeklogo.com.png"))
+df2_final <- left_join(df2, df_logos, by = ("lenguaje"))
+#El data.frame daba problemas así que lo he rehecho con un poco de ayuda de R base.
+ages <- df2_final$Age
+lenguajes <- df2_final$lenguaje
+logos <- df2_final$logo
+dataframef2_final <- data.frame(ages, lenguajes, logos)
+
+gt_tbl <- dataframef2_final %>%
+  gt() %>% 
+  gtExtras::gt_theme_espn() %>%
+  cols_width("lenguajes" ~ px(100), "logos" ~ px(80)) %>% 
+  tab_header(title = "Lenguajes de programación más populares por franjas de edad",
+             subtitle = "Según la encuesta anual de Stack Overflow.")%>%
+  gtExtras::gt_img_rows(columns = logos, img_source = 'web')
+
+gt_tbl
+```
+:::
+
+
+
+---
+
+## 2. Encuesta Stack Overflow {background-color="#CCF381" .smaller}
+:::{.panel-tabset}
+## ¿Cómo se aprende programación?
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+my_ruta <- here::here("datos", "survey_results_public.csv")
+df <- rio::import(my_ruta)
+df <- df %>% 
+  select(LearnCode) %>% 
+  rename(learn=LearnCode) %>% 
+  separate_rows(learn, sep = ";\\s*") %>% 
+  drop_na() %>% 
+  group_by(learn) %>% 
+  summarise(Observaciones = n()) %>% 
+  arrange(desc(Observaciones)) %>% 
+  filter(learn != "Other (please specify):")
+
+colores <- c("#3498db", "#2ecc71", "#e74c3c", "#f39c12", "#9b59b6", "#e67e22", "#1abc9c","#33FF99", "#FFCCFF")
+gt_df <- gt(df) %>%
+  gtExtras::gt_plt_dot(column = "Observaciones", category_column = `learn`,  
+                       max_value = NULL, palette = colores) %>%
+  gtExtras::gt_theme_nytimes() %>%
+  cols_width(`learn` ~ px(400), 2 ~ px(150)) %>% 
+  tab_header(title = "Maneras más usuales que se usan para aprender programación",
+             subtitle = "Según la encuesta anual de Stack Overflow.")
+gt_df
+```
+
+## Lenguajes de programación con mayores salarios
+
+```{r}
+#| echo: true
+#| code-fold: true
+
+my_ruta2 <- here::here("datos","lista_lenguajes_mejor_pagados.xlsx")
+aa <- rio::import(my_ruta2)
+aa <- aa %>% select(-"Number of Jobs")
+df_logos <- data.frame(lenguaje = c("Python", "C", "C++", "Java", "C#", "JavaScript", "PHP", "Visual Basic", "SQL", "Assembly language", "Scratch", "Fortran", "Go", "MATLAB", "Kotlin", "Delphi/Object Pascal", "Swift","Ruby","R","Rust", "Golang"),
+                       logo = c("https://tse4.mm.bing.net/th?id=OIP.EDJ9xoErBbZqK2tExVoJfAAAAA&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.bkbn2-K7c9rMBV5dvYXDrQHaIh&pid=Api&rs=1&c=1&qlt=95&w=103&h=118","https://tse1.mm.bing.net/th?id=OIP.ggb-3B-8LRfbgS0lPLYNxwHaIU&pid=Api&rs=1&c=1&qlt=95&w=105&h=118","https://tse1.mm.bing.net/th?id=OIP.dJ7A1hPb-BDRBrhOmhrVAgHaHa&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.2x1yN8k3MVCrkJFR_C5k-wHaIp&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.YPYdVAg5ieRspLI6HIpmDQHaIB&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.pkqphAig1t-PCsy4dkVrfAHaD5&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.Y224uoZnCs8yY0Sos_h4cQHaDd&pid=Api&rs=1&c=1&qlt=95&w=258&h=120","https://tse4.mm.bing.net/th?id=OIP.S_9pgiKacbi3FxPKxDmusgHaFy&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.v5m2HW3FI3RbopnK8Cs6HgAAAA&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.bHt6sdtkwUqP91oPKlruGgHaEM&pid=Api&P=0&h=180","https://tse2.explicit.bing.net/th?id=OIP.tLfIejOZiP_H0Zse0NIn2QAAAA&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.7nKR4oRAhgtSbD97mDXWWgHaE8&pid=Api&P=0&h=180","https://tse2.mm.bing.net/th?id=OIP.cI8KflTKlnmraGFa22XpKQHaEK&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.gW_YaXsZmuSntd_sy5zkIwHaHa&pid=Api&P=0&h=180","https://tse2.mm.bing.net/th?id=OIP.hEP7hOlvIzhKU1fGpizd7QAAAA&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.XozeB5BRQSzNCO6k7om62QHaHa&pid=Api&P=0&h=180","https://tse1.mm.bing.net/th?id=OIP.2BwE10YiTSXRrnW2LnVh8wHaHa&pid=Api&P=0&h=180","https://tse3.mm.bing.net/th?id=OIP.0rg-o4mEzLO5EHJ1zS52YwHaGe&pid=Api&P=0&h=180","https://tse4.mm.bing.net/th?id=OIP.YmPfYoQK3WvGEjFXusKV9QHaHa&pid=Api&P=0&h=180", "https://seeklogo.com/images/G/go-logo-046185B647-seeklogo.com.png"))
+my_ruta2 <- here::here("datos","lista_lenguajes_mejor_pagados.xlsx")
+aa <- rio::import(my_ruta2)
+aa <- aa %>% select(-"Number of Jobs") %>% 
+  rename(lenguaje = Language)
+df_final <- left_join(aa, df_logos, by = ("lenguaje"))
+
+colores <- c("#3498db", "#2ecc71", "#e74c3c", "#f39c12", "#9b59b6", "#e67e22", "#1abc9c","#33FF99","#95a5a6", "#FFCCFF")
+
+gt_salarios <- gt(df_final) %>%
+  gtExtras::gt_plt_dot(column = "Median Salary ($)", category_column = `lenguaje`,  
+                       max_value = NULL, palette = colores) %>%
+  gtExtras::gt_theme_espn() %>%
+  cols_width(`lenguaje` ~ px(400), 3 ~ px(80)) %>% 
+  tab_header(title = "Lenguajes de programación con mejores salarios",
+             subtitle = "Según la web 4 day week.") %>%
+  gtExtras::gt_img_rows(columns = logo, img_source = 'web')
+gt_salarios
+```
+:::
+
+
+---
+## 3. Programación en Economía {background-color="#CCF381" .smaller}
+::: {.panel-tabset}
+## Modelo estocástico neoclásico de  crecimiento
+
+Don Jesús "filtro de partículas" Fernández-Villaverde analiza la velocidad de computación de distintos lenguajes, estimando un mismo modelo en los diversos lenguajes^["Aruoba, S. B., & Fernández-Villaverde, J. (2015). A comparison of programming languages in macroeconomics. Journal of Economic Dynamics and Control, 58, 265-273."]. 
+<br><br>
+
+
+Un planificador social tiene que maximizar un función de valor escogiendo una combinación de consumo $c_t$ y capital $k_t$ :
+$$\max_{\{c_t, k_t+1\}}\mathbb{E}_0\sum_{t=0}^{\infty}(1 - \beta)\beta^t\log c_t$$
+
+Bajo la siguiente restricción presupuestaria:
+$$c_t + k_{t+1} = z_tk_{t}^\alpha + (1 - \delta)k_t$$
+El problema a maximizar será:
+$$V(k,z) = \max_{k'}(1 - \beta)\beta^t\log(zk^\alpha-k')+\beta\mathbb{E}[V(k',z')|z]$$
+
+## Resultados del paper
+```{r}
+#| code-fold: true
+
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(ggthemes)
+
+ex_times <- readxl::read_excel("./datos/execution_times.xlsx") #-importamos la tabla del pdf del paper a una hoja de cálculo, la cargamos, y ya trabajamos con ella en R
+
+ex_times <- ex_times %>%  
+  select(1, 4) %>% 
+  na.omit() 
+
+colnames(ex_times) <- c("Lenguajes", "times")
+ex_times <- ex_times[2:9,] 
+
+ex_times <- ex_times %>% 
+  mutate(times = parse_number(times))
+
+ex_times <- ex_times %>%
+  mutate(category = case_when(
+    as.numeric(times) < 3 ~ "Menos de 3 seg",
+    as.numeric(times) >= 3 & as.numeric(times) < 60 ~ "Entre 3 y 60 seg",
+    as.numeric(times) >= 60 ~ "Más de 60 seg",
+    TRUE ~ NA_character_)) 
+
+ex_times$factor_cat <- as.factor(ex_times$category)
+orden_correcto <- c("Menos de 3 seg", "Entre 3 y 60 seg", "Más de 60 seg")
+ex_times$factor_cat <- factor(ex_times$category, levels = orden_correcto)
+
+ex_times_plot <- ex_times %>% 
+  ggplot() +
+  aes(x = Lenguajes, y = times, fill = Lenguajes)  +
+  geom_bar(stat = "identity") +
+  facet_wrap(~factor_cat, scales = "free") +
+  theme_stata(scheme = "s1color") +
+  labs(title = "Tiempos de ejecución del modelo", x = "", y = "Tiempo en segundos")
+
+ex_times_plot
+```
+:::
+
+
+## 3.Programación en Economía {background-color="#CCF381" .smaller}
+::: {.panel-tabset}
+
+## Una miqueta de Econometría
+```{r}
+#| echo: true
+#| eval: true
+#| code-fold: true
+#Modelo econométrico ----------
+library(tidyverse)
+library(dplyr)
+library(reshape2)
+library(stargazer)
+library(vembedr)
+library(jtools)
+
+df <- read.csv("./datos/FebPwtExport12152023.csv")
+#- pasamos los datos a formato wide
+df <- dcast(df, RegionCode + YearCode ~ VariableCode, value.var = "AggValue")
+#- cambiamos el nombre a uno más familiar y creamos la variable trabajo y filtramos los datos a partir del 78
+df <- df %>% 
+  mutate(l = avh*emp) %>% 
+  rename(k = rnna,
+         pib = rgdpna,
+         year = YearCode) %>% 
+  filter(year >= 1960)
+
+modelo <- lm(log(pib) ~ log(l) + log(k), data = df)
+modelo
+summ(modelo)
+```
+## Gráfico de los residuos
+```{r}
+#| echo: true
+#| eval: true
+#| code-fold: true
+
+df_residuos <- data.frame(x = lag(resid(modelo)), y = resid(modelo)) %>% 
+  na.omit()
+
+autocorrelacion <- df_residuos %>% 
+  ggplot() +
+  geom_point(color = "red") +
+  aes(x = x, y = y) +
+  labs(title = "Dispersión de los residuos del modelo", 
+       x = "Residuos rezagados",
+       y = "Residuos") +
+  theme_clean() + 
+  geom_smooth(se = FALSE, method = lm)
+autocorrelacion
+
+  
+```
+
+## Autocorrelación
+```{r}
+#| echo: true
+#| code-fold: true
+
+autocorrelación_plot <- df %>% 
+  ggplot() + 
+  geom_point(color = "#5D8AA8") +
+  geom_line(color = "#69b3a2") +
+  aes(x = year, y = resid(modelo)) +
+  labs(title = "Residuos del modelo", 
+       x = "Año",
+       y = "Residuos") +
+  geom_hline(yintercept = 0, color = "orange", size=.5) +
+  theme_classic()
+autocorrelación_plot  
+```
+:::
+
+# {background-iframe="logo-fall/index.html"}
+
